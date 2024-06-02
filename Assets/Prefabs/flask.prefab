@@ -166,6 +166,7 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: fd31fd17f45e4844883008ef553e22fb, type: 2}
   liquid: {fileID: 7746668631373509490}
   throwable: {fileID: 3772638659806467141}
+  c: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &3772638659806467141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,7 +182,7 @@ MonoBehaviour:
   rb: {fileID: 6839700426108962890}
   colliders:
   - {fileID: 2420060939766511689}
-  throwForce: 25
+  throwForce: 50
   damage: 5
   hitEffect: {fileID: 3488015256751721077, guid: e0037b313949816419ece5c7c10c9a75,
     type: 3}

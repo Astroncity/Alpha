@@ -15,13 +15,18 @@ public class Throwable : Grabbable{
     public override void Use(){
         if(Input.GetMouseButtonUp(0)){
             Drop();
+            rb.mass *= 2;
             rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
+            rb.AddTorque(Random.insideUnitSphere.normalized * 5, ForceMode.Impulse);
             thrown = true;
         }
     }
 
 
     public override ActionPopup GetPopup(){
+        if(Vector3.Distance(transform.position, PlayerController.player.transform.position) > grabDistance){
+            return new ActionPopup("", ' ');
+        }
         return new ActionPopup(actionMsg, actionKey);
     }
 

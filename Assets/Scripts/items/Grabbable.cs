@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class Grabbable : MonoBehaviour, IPopup{
     public Rigidbody rb;
     public Collider[] colliders;
+    public static float grabDistance = 5f;
     
     
     public abstract void Use();

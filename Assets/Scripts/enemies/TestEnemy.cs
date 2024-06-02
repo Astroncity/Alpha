@@ -4,32 +4,15 @@ using TMPro;
 using UnityEngine;
 
 public class TestEnemy : Enemy{
-    public GameObject healthBar;
-    public TextMeshProUGUI healthText;
-    public GameObject canvas;
-    public float maxHealth = 100;
-    public float health;
-    public float speed = 5;
     public LineRenderer line;
 
     public override void Damage(float dmg){
         health -= dmg;
     }
 
-    void UpdateCanvas(){
-        healthBar.transform.localScale = new Vector3(health / maxHealth, 1, 1);
-        healthText.text = health + " / " + maxHealth;
-        canvas.transform.LookAt(Camera.main.transform);
-    }
 
-
-    public void Start(){
-        count++;
-    }
-
-
-    void Update(){
-        UpdateCanvas();
+    public override void Update(){
+        base.Update();
         if(health <= 0){
             Destroy(gameObject);
         }
@@ -39,7 +22,7 @@ public class TestEnemy : Enemy{
     }
 
 
-    void OnCollisionEnter(Collision col){
+    public void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "Player"){
             col.gameObject.GetComponent<PlayerController>().health -= 10;
         }

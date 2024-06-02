@@ -103,7 +103,7 @@ public class PlayerController : MonoBehaviour{
         }
 
         if(Input.GetKeyDown(KeyCode.E)){
-            if(lookingAt != null){
+            if(lookingAt != null && Vector3.Distance(transform.position, lookingAt.transform.position) < Grabbable.grabDistance){
                 Grabbable p = lookingAt.GetComponent<Grabbable>();
                 if(p != null){
                     holding?.Drop();

@@ -9,8 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3185881899732588485}
-  - component: {fileID: -141449460379093482}
   - component: {fileID: 5275992443725815367}
+  - component: {fileID: 1220575968118913817}
+  - component: {fileID: -141449460379093482}
+  - component: {fileID: 5017521578767475412}
   m_Layer: 0
   m_Name: tube
   m_TagString: Untagged
@@ -34,20 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-141449460379093482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2765621971219374749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c994df7ce1eb4c14db0b1e6219f73795, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: fd31fd17f45e4844883008ef553e22fb, type: 2}
-  liquid: {fileID: 4774514851911568207}
 --- !u!54 &5275992443725815367
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -64,6 +52,58 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!136 &1220575968118913817
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2765621971219374749}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.04401259
+  m_Height: 0.43047145
+  m_Direction: 1
+  m_Center: {x: 2.0372681e-10, y: 0.034878977, z: 2.910383e-11}
+--- !u!114 &-141449460379093482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2765621971219374749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c994df7ce1eb4c14db0b1e6219f73795, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: fd31fd17f45e4844883008ef553e22fb, type: 2}
+  liquid: {fileID: 4774514851911568207}
+  throwable: {fileID: 0}
+  c: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &5017521578767475412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2765621971219374749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07ef62540f66bca4a8ea7d356b2cf284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rb: {fileID: 5275992443725815367}
+  colliders:
+  - {fileID: 8497808417313066454}
+  throwForce: 50
+  damage: 5
+  hitEffect: {fileID: 3488015256751721077, guid: e0037b313949816419ece5c7c10c9a75,
+    type: 3}
+  explosionSound: {fileID: 0}
+  actionMsg: Grab Test Tube
+  thrown: 0
 --- !u!1 &4774514851911568207
 GameObject:
   m_ObjectHideFlags: 0
