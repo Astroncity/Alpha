@@ -24,7 +24,7 @@ public class TestEnemy : Enemy{
 
     public void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "Player"){
-            col.gameObject.GetComponent<PlayerController>().health -= 10;
+            PlayerController.instance.Damage(10, AttackType.Normal);
         }
     }
 

@@ -275,10 +275,12 @@ MonoBehaviour:
   - {fileID: 9193745990798286632}
   hitEffect: {fileID: 3488015256751721077, guid: 80b070b93aef75e418ea7222e92366a2,
     type: 3}
-  type: 0
+  type: 1
+  reloadTime: 1.5
+  reloadTimer: 0
+  reloading: 0
   magSize: 10
   ammo: 10
-  reloadTime: 1.5
   fireRate: 0.5
   damage: 25
   range: 100

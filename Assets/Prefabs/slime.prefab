@@ -64,7 +64,7 @@ MonoBehaviour:
   combineTime: 7
   combineRange: 5
   combineThreshold: 3
-  attackType: 0
+  attackType: 1
 --- !u!54 &878153265387674760
 Rigidbody:
   m_ObjectHideFlags: 0

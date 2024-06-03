@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 
@@ -23,7 +25,7 @@ public class PlayerController : MonoBehaviour{
     public static PlayerController instance;
     
     [Header("Movement")]
-    public float defSpeed = 5f;
+    public float defSpeed;
     private float speed;
     public Rigidbody rb;
     public bool sprinting = false;
@@ -48,13 +50,20 @@ public class PlayerController : MonoBehaviour{
     public Image reloadTimeBar;
     public Image reloadTimeBarBackground;
     
-    [Header("Health Bar")]
+    [Header("Health")]
     public float maxHealth = 100;
-    public float health;
+    public float health{get; private set;}
     public TextMeshProUGUI healthText;  
     public GameObject healthBar;
     public float fullHealthBarPos;
     public float healthBarWidth;
+
+    [Header("Debuffs")]
+    public Stack<Debuff> debuffs = new();
+    private Vignette vignette;
+    public VolumeProfile volumeProfile;
+    public float vingnetteDefIntensity;
+    public Color vignetteDefColor;
 
     [Header("Grabbables")]
     public static GameObject lookingAt;
@@ -63,7 +72,10 @@ public class PlayerController : MonoBehaviour{
     public Image keyBackground;
     public Grabbable holding;
 
-    void Start(){
+    public void Start(){
+        volumeProfile.TryGet(out vignette);
+        vingnetteDefIntensity = vignette.intensity.value;
+        vignetteDefColor = vignette.color.value;
         instance = this;
         player = gameObject;
         health = maxHealth;
@@ -93,7 +105,7 @@ public class PlayerController : MonoBehaviour{
         }
     }
 
-    void Update(){
+    public void Update(){
         //Debug.Log(holding?.name ?? "null");
         if(holding != null){
             if(holding is Weapon) HandleWeapon();
@@ -104,6 +116,7 @@ public class PlayerController : MonoBehaviour{
         displayPopup();
         Move();
         HandleHealthBar();
+        HandleDebuffs();
 
         if(Input.GetKeyDown(KeyCode.T)){
             holding?.Drop();
@@ -124,7 +137,7 @@ public class PlayerController : MonoBehaviour{
         //Debug.Log(lookingAt?.name ?? "null");
     }
 
-    void FixedUpdate(){
+    public void FixedUpdate(){
         ApplyMovementForce(inputDir, speed);
         Jump();
     }
@@ -173,7 +186,7 @@ public class PlayerController : MonoBehaviour{
         RectTransform rt = healthBar.GetComponent<RectTransform>();
         float ycomp = rt.localPosition.y;
         rt.localPosition = Vector3.Lerp(rt.localPosition, new Vector3(fullHealthBarPos - healthBarWidth + (healthBarWidth * health/maxHealth), ycomp, 0), 7f * Time.deltaTime);
-        healthText.text = health + " / " + maxHealth;
+        healthText.text = health.ToString("F0") + " / " + maxHealth;
     }
 
 
@@ -186,6 +199,9 @@ public class PlayerController : MonoBehaviour{
             rb.AddForce(Vector3.up * 20, ForceMode.Impulse);
         }
     }
+
+
+
 
 
     void Move(){
@@ -229,4 +245,49 @@ public class PlayerController : MonoBehaviour{
 
         transform.rotation = new Quaternion(0, Camera.main.transform.rotation.y, 0,  Camera.main.transform.rotation.w);
     }
+
+    private void HandleDebuffs(){
+        if(debuffs.Count == 0){
+            ResetVignette();
+            return;
+        }
+        Debuff latest = debuffs.Peek();
+        if(latest.duration + latest.startTime < Time.time){
+            debuffs.Pop();
+        }
+
+        if(ContainsDebuff(AttackType.Goo)){
+            health -= 5 * Time.deltaTime;
+            vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, vingnetteDefIntensity * 1.25f, 7f * Time.deltaTime);
+            vignette.color.value = Color.Lerp(vignette.color.value, Color.green, 7f * Time.deltaTime);
+        }
+        else{
+            ResetVignette();
+        }
+    
+    }
+
+
+    public void ResetVignette(){
+        vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, vingnetteDefIntensity, 7f * Time.deltaTime);
+        vignette.color.value = Color.Lerp(vignette.color.value, vignetteDefColor, 7f * Time.deltaTime);
+    }
+
+
+    private bool ContainsDebuff(AttackType type){
+        foreach(Debuff d in debuffs){
+            if(d.type == type) return true;
+        }
+        return false;
+    }  
+
+
+    public void Damage(float damage, AttackType type){
+        health -= damage;
+        debuffs.Push(new Debuff(type, 5));
+        if(health <= 0){
+            Debug.Log("Player died");
+        }
+    }
+
 }

@@ -5,12 +5,13 @@ using UnityEngine;
 
 public class SlimeProjectile : MonoBehaviour{
     public float damage;
+    public AttackType type;
 
 
     public void OnCollisionEnter(Collision col){
         Grabbable holding = PlayerController.instance.holding;
         if(col.gameObject.tag == "Player" || holding != null && holding == col.gameObject.GetComponent<Grabbable>()){
-            PlayerController.instance.health -= damage;
+            PlayerController.instance.Damage(damage, type);
             Destroy(gameObject);
         }
         else{

@@ -6,13 +6,6 @@ using UnityEditor;
 using UnityEngine;
 
 
-public enum AttackType{
-    Goo,
-    Electric,
-    Fire,
-    Ice
-}
-
 public class Slime : Enemy{
     public static List<Slime> slimes = new();
     public int fireRate = 2;
@@ -130,6 +123,8 @@ public class Slime : Enemy{
             if(!super) projectile.transform.localScale /= 2;  
             projectile.transform.LookAt(PlayerController.player.transform.position);
             projectile.GetComponent<Rigidbody>().velocity = (PlayerController.player.transform.position - transform.position).normalized * projectileSpeed;
+            projectile.GetComponent<SlimeProjectile>().damage = damage;
+            projectile.GetComponent<SlimeProjectile>().type = attackType;
             delta = 0;
         }
     }

@@ -23,6 +23,10 @@ public abstract class Weapon : Grabbable{
     
     public abstract string AmmoInfo();
     public abstract float AmmoPercent();
+
+    public virtual void OnValidate(){
+        if(type == WeaponType.None) Debug.LogError("Weapon type not set for " + name);
+    }
     
 
     public virtual void Sway(float smooth, float sway){

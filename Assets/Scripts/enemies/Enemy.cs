@@ -7,6 +7,27 @@ using TMPro;
 using System;
 using System.Runtime.CompilerServices;
 
+public enum AttackType{
+    Normal,
+    Goo,
+    Electric,
+    Fire,
+    Ice
+}
+
+
+public struct Debuff{
+    public AttackType type;
+    public float duration;
+    public float startTime;
+    
+    public Debuff(AttackType type, float duration){
+        this.type = type;
+        this.duration = duration;
+        this.startTime = Time.time;
+    }
+}
+
 public abstract class Enemy : MonoBehaviour{
     public GameObject healthBar;
     public TextMeshProUGUI healthText;
