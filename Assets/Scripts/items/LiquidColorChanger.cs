@@ -19,7 +19,7 @@ public class LiquidColorChanger : MonoBehaviour{
     public void SetEffectColor(GameObject effect){
         Material effectMat = effect.GetComponent<ParticleSystemRenderer>().material;
         Debug.Log(effectMat.name);
-        Material mat = new Material(effectMat);
+        Material mat = new(effectMat);
         mat.SetColor("_EmissionColor", c * 4f);
         mat.SetColor("_Color", c);
         effect.GetComponent<ParticleSystemRenderer>().material = mat;
@@ -27,7 +27,7 @@ public class LiquidColorChanger : MonoBehaviour{
 
 
     public void SetObjColor(){
-        Material mat = new Material(material);
+        Material mat = new(material);
         mat.SetColor("_EmissionColor", c * 4f);
         mat.SetColor("_Color", c);
         liquid.GetComponent<MeshRenderer>().material = mat;

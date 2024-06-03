@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 public class Room : MonoBehaviour{
     [HideInInspector] public List<GameObject> doors;
@@ -21,9 +22,9 @@ public class Room : MonoBehaviour{
             float x = Random.Range(col.bounds.min.x, col.bounds.max.x);
             float z = Random.Range(col.bounds.min.z, col.bounds.max.z);
             float y = col.bounds.max.y;
-            Vector3 pos = new Vector3(x, y, z);
+            Vector3 pos = new(x, y, z);
 
-            GameObject enemy = Instantiate(testEnemyPrefab, pos, Quaternion.identity, transform);
+            GameObject enemy = Instantiate(PrefabManager.instance.enemies.Random(), pos, Quaternion.identity, transform);
             enemy.GetComponent<Enemy>().parentRoom = gameObject;
             enemies.Add(enemy.GetComponent<Enemy>());
 
@@ -59,7 +60,7 @@ public class Room : MonoBehaviour{
             //check if door is already there from another room
             RaycastHit hit;
             Vector3 pos = doorStart.position - doorStart.up * 4;
-            Ray ray = new Ray(pos, doorStart.up);
+            Ray ray = new(pos, doorStart.up);
             Debug.DrawRay(pos, doorStart.up * 5, Color.red, 1000f);
             if(Physics.Raycast(ray, out hit, 5f)){
                 if(hit.collider.attachedRigidbody.gameObject.tag == "door"){

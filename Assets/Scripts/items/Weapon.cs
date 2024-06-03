@@ -15,6 +15,10 @@ public enum WeaponType{
 public abstract class Weapon : Grabbable{
     public GameObject hitEffect;
     public WeaponType type;
+    public float reloadTime;
+    public float reloadTimer;
+    public bool reloading;
+
 
     
     public abstract string AmmoInfo();

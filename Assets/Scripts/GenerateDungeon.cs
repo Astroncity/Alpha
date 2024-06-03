@@ -11,7 +11,7 @@ public class GenerateDungeon : MonoBehaviour{
     [HideInInspector] public List<GameObject> rmList;
     public int rooms;
     public float roomRenderDistance = 20f;
-    Queue<GameObject> roomQueue = new Queue<GameObject>();
+    Queue<GameObject> roomQueue = new();
     public int roomCount;
 
 

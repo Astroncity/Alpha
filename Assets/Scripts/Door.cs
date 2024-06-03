@@ -11,7 +11,7 @@ public class Door : MonoBehaviour, IPopup{
     [HideInInspector] public GameObject room;
     [SerializeField] private Keypad keypad1;
     [SerializeField] private Keypad keypad2;
-    public static ActionPopup actionPopup = new ActionPopup("Break Door", 'E');
+    public static ActionPopup actionPopup = new("Break Door", 'E');
     public static float popupRange = 5f;
     private bool inRange = false;
     public BoxCollider col;

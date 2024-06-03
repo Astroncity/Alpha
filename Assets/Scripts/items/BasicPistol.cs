@@ -6,7 +6,6 @@ public class BasicPistol : Weapon {
     public int magSize = 10;
     // public ammo field with range 0 to ammo use [] to make it a slider
     [Range(0, 10)] public int ammo;
-    public float reloadTime = 1.5f;
     public float fireRate = 0.5f;
     public float damage = 10;
     public float range = 5f;
@@ -17,7 +16,7 @@ public class BasicPistol : Weapon {
 
     public Transform laserStart;
     public LineRenderer laser;
-    public static ActionPopup popup = new ActionPopup("Grab Pistol", 'E');
+    public static ActionPopup popup = new("Grab Pistol", 'E');
 
 
     public void Start(){
@@ -32,11 +31,14 @@ public class BasicPistol : Weapon {
 
     public override void Use(){
         if(Input.GetKeyDown(KeyCode.R)){
-            reload();
+            reloading = true;
+            Invoke("Reload", reloadTime);
         }
-        if(Input.GetMouseButtonDown(0) && ammo > 0){
-            shoot();
+        if(Input.GetMouseButtonDown(0) && ammo > 0 && !reloading){
+            Shoot();
         }
+
+        if(reloading) reloadTimer += Time.deltaTime;
         laserEnabled = true;
     }
 
@@ -44,7 +46,7 @@ public class BasicPistol : Weapon {
         return ammo + " / " + magSize;
     }
 
-    public void onEnemyHit(Enemy enemy, bool isSplash = false){
+    public void OnEnemyHit(Enemy enemy, bool isSplash = false){
         if(!isSplash) enemy.Damage(damage);
         else enemy.Damage(damage * splashDamageFalloff);
     }
@@ -55,7 +57,7 @@ public class BasicPistol : Weapon {
     }
 
     public void LateUpdate(){
-        if(laserEnabled) handleLaser();
+        if(laserEnabled) HandleLaser();
         else{
             laser.SetPosition(0, laserStart.position);
             laser.SetPosition(1, laserStart.position);
@@ -63,7 +65,7 @@ public class BasicPistol : Weapon {
     }
 
 
-    public void handleLaser(){
+    public void HandleLaser(){
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
 
@@ -79,16 +81,16 @@ public class BasicPistol : Weapon {
     }
 
 
-    public void shoot(){
+    public void Shoot(){
         RaycastHit hit;
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
         if(Physics.Raycast(ray, out hit, range)){
-            List<Collider> hitList = new List<Collider>(Physics.OverlapSphere(hit.point, splashRange));
+            List<Collider> hitList = new(Physics.OverlapSphere(hit.point, splashRange));
 
             //*handle first hit
             if(hit.transform.tag == "Enemy"){
-                onEnemyHit(hit.transform.GetComponent<Enemy>());
+                OnEnemyHit(hit.transform.GetComponent<Enemy>());
             }
             hit.rigidbody.AddExplosionForce(500, hit.point, 3);
             hitList.Remove(hit.collider);
@@ -96,7 +98,8 @@ public class BasicPistol : Weapon {
             //*handle splash damage
             foreach(Collider c in hitList){
                 if(c.gameObject.transform.tag == "Enemy"){
-                    onEnemyHit(c.transform.GetComponent<Enemy>(), true);
+                    Enemy enemy = c.transform.GetComponent<Enemy>() ?? c.transform.GetComponentInParent<Enemy>();
+                    OnEnemyHit(enemy, true);
                 }
                 c.attachedRigidbody.AddExplosionForce(250, hit.point, 3);
             }
@@ -110,8 +113,10 @@ public class BasicPistol : Weapon {
         ammo--;
     }
 
-    public void reload(){
+    public void Reload(){
         ammo = magSize;
+        reloading = false;
+        reloadTimer = 0;
     }
 
 }

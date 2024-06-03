@@ -20,6 +20,7 @@ public struct ActionPopup{
 
 public class PlayerController : MonoBehaviour{
     public static GameObject player;
+    public static PlayerController instance;
     
     [Header("Movement")]
     public float defSpeed = 5f;
@@ -41,6 +42,11 @@ public class PlayerController : MonoBehaviour{
     public GameObject ammoBar;
     public float fullBarPos;
     public float barWidth;
+
+    [Header("Weapons")]
+    public TextMeshProUGUI reloadTimeText;
+    public Image reloadTimeBar;
+    public Image reloadTimeBarBackground;
     
     [Header("Health Bar")]
     public float maxHealth = 100;
@@ -58,6 +64,7 @@ public class PlayerController : MonoBehaviour{
     public Grabbable holding;
 
     void Start(){
+        instance = this;
         player = gameObject;
         health = maxHealth;
         defFOV = Camera.main.fieldOfView;
@@ -145,6 +152,20 @@ public class PlayerController : MonoBehaviour{
         RectTransform rt = ammoBar.GetComponent<RectTransform>();
         float ycomp = rt.localPosition.y;
         rt.localPosition = Vector3.Lerp(rt.localPosition, new Vector3(fullBarPos - barWidth + (barWidth * wep.AmmoPercent()), ycomp, 0), 7f * Time.deltaTime);
+
+        // update reloading
+        if(wep.reloading){
+            reloadTimeBar.enabled = true;
+            reloadTimeBarBackground.enabled = true;
+            reloadTimeText.text = (wep.reloadTime - wep.reloadTimer).ToString("F1") + "s";
+            reloadTimeBar.fillAmount = wep.reloadTimer / wep.reloadTime;
+        }
+        else{
+            reloadTimeText.text = "";
+            reloadTimeBar.fillAmount = 0;
+            reloadTimeBar.enabled = false;
+            reloadTimeBarBackground.enabled = false;
+        }    
     }
 
 
