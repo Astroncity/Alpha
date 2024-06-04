@@ -88,6 +88,7 @@ public class PlayerController : MonoBehaviour{
     }
 
 
+
     public void displayPopup(){
         if(lookingAt == null) return;
 
@@ -282,12 +283,19 @@ public class PlayerController : MonoBehaviour{
     }  
 
 
+
     public void Damage(float damage, AttackType type){
         health -= damage;
         debuffs.Push(new Debuff(type, 5));
         if(health <= 0){
             Debug.Log("Player died");
         }
+    }
+
+
+    private void OnDestroy(){
+        vignette.intensity.value = vingnetteDefIntensity;
+        vignette.color.value = vignetteDefColor;
     }
 
 }

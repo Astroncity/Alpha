@@ -35,7 +35,7 @@ public abstract class Enemy : MonoBehaviour{
     public float maxHealth;
     public float health;
     public float speed;
-    public static int count;
+    public static int count = 0;
     public GameObject parentRoom;
 
     //! Dumb way to do this, but if it works, it works
