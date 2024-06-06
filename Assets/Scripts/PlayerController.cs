@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -24,7 +26,7 @@ public class PlayerController : MonoBehaviour{
     public static GameObject player;
     public static PlayerController instance;
     
-    [Header("Movement")]
+    [Header("Movement")] [Space(10)]
     public float defSpeed;
     private float speed;
     public Rigidbody rb;
@@ -39,38 +41,40 @@ public class PlayerController : MonoBehaviour{
     private float verticalInput;
 
     
-    [Header("Ammo Bar")]
+    [Header("Ammo Bar")] [Space(10)]
     public TextMeshProUGUI ammoText;
     public GameObject ammoBar;
     public float fullBarPos;
     public float barWidth;
 
-    [Header("Weapons")]
+    [Header("Weapons")] [Space(10)]
     public TextMeshProUGUI reloadTimeText;
     public Image reloadTimeBar;
     public Image reloadTimeBarBackground;
     
-    [Header("Health")]
+    [Header("Health")] [Space(10)]
     public float maxHealth = 100;
-    public float health{get; private set;}
+    public float health;
     public TextMeshProUGUI healthText;  
     public GameObject healthBar;
     public float fullHealthBarPos;
     public float healthBarWidth;
 
-    [Header("Debuffs")]
-    public Stack<Debuff> debuffs = new();
+    public Dictionary<AttackType, float> debuffs = new();
+    [Header("Debuffs")] [Space(10)]
+    public DebuffUIPackage[] debuffUIPackages; //* in order of AttackType
     private Vignette vignette;
     public VolumeProfile volumeProfile;
     public float vingnetteDefIntensity;
     public Color vignetteDefColor;
 
-    [Header("Grabbables")]
+    [Header("Grabbables")] [Space(10)]  
     public static GameObject lookingAt;
     public TextMeshProUGUI actionDescription;
     public TextMeshProUGUI actionKey;
     public Image keyBackground;
     public Grabbable holding;
+    public bool electrified = false;
 
     public void Start(){
         volumeProfile.TryGet(out vignette);
@@ -85,6 +89,12 @@ public class PlayerController : MonoBehaviour{
         barWidth = ammoBar.GetComponent<RectTransform>().rect.width / 7.5f;
         fullHealthBarPos = healthBar.GetComponent<RectTransform>().rect.x + healthBar.GetComponent<RectTransform>().rect.width / 2;
         healthBarWidth = healthBar.GetComponent<RectTransform>().rect.width / 7.5f;
+
+        // -- DEBUFF SETUP --
+        DebuffDefinitions.player = this;
+        DebuffDefinitions.vignette = vignette;
+        DebuffDefinitions.debuffIntensity = vignette.intensity.value * 0.9f;
+        InitDebuffs();
     }
 
 
@@ -123,19 +133,24 @@ public class PlayerController : MonoBehaviour{
             holding?.Drop();
         }
 
-        if(Input.GetKeyDown(KeyCode.E)){
-            if(lookingAt != null && Vector3.Distance(transform.position, lookingAt.transform.position) < Grabbable.grabDistance){
-                Grabbable p = lookingAt.GetComponent<Grabbable>();
-                if(p != null){
-                    holding?.Drop();
-                    p.Grab();
-                    holding = p;
-                }
-            }
+        if(!electrified && Input.GetKeyDown(KeyCode.E)){
+            Grab();
         }
 
         //Debug.Log("Enemies: " + Enemy.count.ToString());
         //Debug.Log(lookingAt?.name ?? "null");
+    }
+
+
+    private void Grab(){
+        if(lookingAt != null && Vector3.Distance(transform.position, lookingAt.transform.position) < Grabbable.grabDistance){
+            Grabbable p = lookingAt.GetComponent<Grabbable>();
+            if(p != null){
+                holding?.Drop();
+                p.Grab();
+                holding = p;
+            }
+        }
     }
 
     public void FixedUpdate(){
@@ -248,24 +263,48 @@ public class PlayerController : MonoBehaviour{
     }
 
     private void HandleDebuffs(){
-        if(debuffs.Count == 0){
-            ResetVignette();
-            return;
-        }
-        Debuff latest = debuffs.Peek();
-        if(latest.duration + latest.startTime < Time.time){
-            debuffs.Pop();
+        bool debuffActive = false;
+        bool seenElectric = false;
+        for(int i = 0; i < debuffUIPackages.Length; i++){
+            AttackType debuff = (AttackType)i + 1;
+            if(debuffs[debuff] <= 0){
+                HandleDebuffPackage(debuff, false, 0);
+                continue;
+            }
+            debuffActive = true;
+            debuffs[debuff] -= Time.deltaTime;
+            DebuffDefinitions.GetDebuff(debuff);
+            HandleDebuffPackage(debuff, true, debuffs[debuff]);
+
+            if(debuff == AttackType.Electric){
+                seenElectric = true;
+            }
         }
 
-        if(ContainsDebuff(AttackType.Goo)){
-            health -= 5 * Time.deltaTime;
-            vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, vingnetteDefIntensity * 1.25f, 7f * Time.deltaTime);
-            vignette.color.value = Color.Lerp(vignette.color.value, Color.green, 7f * Time.deltaTime);
-        }
-        else{
+        electrified = seenElectric;
+
+        if(!debuffActive){
             ResetVignette();
         }
-    
+    }
+
+
+    void HandleDebuffPackage(AttackType type, bool active, float dur){
+        int index = (int)type - 1;
+        if(index > debuffUIPackages.Length - 1) return; //! Temp while not all debuffs are implemented
+        DebuffUIPackage package = debuffUIPackages[(int)type - 1];
+        float opacityMul = active ? 1 : 0.25f;
+
+        foreach(Image img  in package.images){
+            img.color = new Color(img.color.r, img.color.g, img.color.b, opacityMul);
+        }
+
+        if(dur == 0){
+            package.timeText.text = "N/A";
+        }
+        else{
+            package.timeText.text = dur.ToString("F1");
+        }
     }
 
 
@@ -275,20 +314,27 @@ public class PlayerController : MonoBehaviour{
     }
 
 
-    private bool ContainsDebuff(AttackType type){
-        foreach(Debuff d in debuffs){
-            if(d.type == type) return true;
+    private void AddDebuff(AttackType type, float duration){
+        if(debuffs[type] < duration){
+            debuffs[type] = duration;
         }
-        return false;
-    }  
+    }
+
+    private void InitDebuffs(){
+        for(int i = 1; i < Enum.GetValues(typeof(AttackType)).Length; i++){
+            debuffs.Add((AttackType)i, 0);
+        }
+
+    }
 
 
 
     public void Damage(float damage, AttackType type){
         health -= damage;
-        debuffs.Push(new Debuff(type, 5));
+        float tempDuration = 5f; //! temp
+        if(type != AttackType.Normal) AddDebuff(type, tempDuration);
         if(health <= 0){
-            Debug.Log("Player died");
+            //die
         }
     }
 
