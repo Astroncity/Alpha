@@ -182,12 +182,14 @@ MonoBehaviour:
   rb: {fileID: 6839700426108962890}
   colliders:
   - {fileID: 2420060939766511689}
+  icon: {fileID: 0}
+  iconRotation: {x: 0, y: 0, z: 0, w: 0}
   throwForce: 50
   damage: 5
   hitEffect: {fileID: 3488015256751721077, guid: e0037b313949816419ece5c7c10c9a75,
     type: 3}
   explosionSound: {fileID: 0}
-  actionMsg: Grab Flask
+  actionMsg: Grab[Flask]
   thrown: 0
 --- !u!65 &6787514060728597186
 BoxCollider:

@@ -71,9 +71,12 @@ public class PlayerController : MonoBehaviour{
     [Header("Grabbables")] [Space(10)]  
     public static GameObject lookingAt;
     public TextMeshProUGUI actionDescription;
-    public TextMeshProUGUI actionKey;
-    public Image keyBackground;
     public Grabbable holding;
+    //! temp
+    public RawImage testInvetoryIcon;
+    public Camera inventoryCam;
+    public InventoryThumbnailRenderer thumbnailRenderer;
+    //! end temp
     public bool electrified = false;
 
     public void Start(){
@@ -90,6 +93,9 @@ public class PlayerController : MonoBehaviour{
         fullHealthBarPos = healthBar.GetComponent<RectTransform>().rect.x + healthBar.GetComponent<RectTransform>().rect.width / 2;
         healthBarWidth = healthBar.GetComponent<RectTransform>().rect.width / 7.5f;
 
+        //!temp
+        thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam.gameObject, volumeProfile);
+
         // -- DEBUFF SETUP --
         DebuffDefinitions.player = this;
         DebuffDefinitions.vignette = vignette;
@@ -105,22 +111,21 @@ public class PlayerController : MonoBehaviour{
         IPopup p = lookingAt.GetComponent<IPopup>();
         if(p != null && p.GetPopup().description != "" && p.GetPopup().key != ' '){
             ActionPopup popup = lookingAt.GetComponent<IPopup>().GetPopup();
-            actionDescription.text = popup.description;
-            actionKey.text = popup.key.ToString();
-            keyBackground.gameObject.SetActive(true);
+            actionDescription.text = "[" + popup.key + "]-" + popup.description;
         }
         else{
             actionDescription.text = "";
-            actionKey.text = "";
-            keyBackground.gameObject.SetActive(false);
         }
     }
 
     public void Update(){
         //Debug.Log(holding?.name ?? "null");
         if(holding != null){
+            if(holding.icon == null) holding.icon = thumbnailRenderer.Render(new Vector2Int(48 * 5, 64 * 5), holding);
+            testInvetoryIcon.texture = holding.icon;
             if(holding is Weapon) HandleWeapon();
             if(holding is Throwable) holding.Use();
+            
         }
 
         handleLook();

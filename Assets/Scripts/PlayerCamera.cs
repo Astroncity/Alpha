@@ -8,6 +8,9 @@ public class PlayerCamera : MonoBehaviour{
     public float maxAngle;
     public float minAngle;
 
+    void Awake(){
+        GetComponent<Camera>().depth = 20;
+    }
 
     void Update(){
         transform.position = PlayerController.player.transform.position + new Vector3(0, 1f, 0);

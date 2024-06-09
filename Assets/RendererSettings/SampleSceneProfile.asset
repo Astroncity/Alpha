@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   active: 1
   postExposure:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   contrast:
     m_OverrideState: 1
@@ -167,7 +167,7 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 19.3
+    m_Value: 0
 --- !u!114 &9082439128175073282
 MonoBehaviour:
   m_ObjectHideFlags: 3

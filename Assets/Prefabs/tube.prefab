@@ -97,12 +97,14 @@ MonoBehaviour:
   rb: {fileID: 5275992443725815367}
   colliders:
   - {fileID: 8497808417313066454}
+  icon: {fileID: 0}
+  iconRotation: {x: 0, y: 0, z: 0, w: 0}
   throwForce: 50
   damage: 5
   hitEffect: {fileID: 3488015256751721077, guid: e0037b313949816419ece5c7c10c9a75,
     type: 3}
   explosionSound: {fileID: 0}
-  actionMsg: Grab Test Tube
+  actionMsg: Grab[Test_tube]
   thrown: 0
 --- !u!1 &4774514851911568207
 GameObject:

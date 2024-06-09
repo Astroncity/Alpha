@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class Grabbable : MonoBehaviour, IPopup{
     public Rigidbody rb;
     public Collider[] colliders;
     public static float grabDistance = 5f;
+    public RenderTexture icon;
+    public Quaternion iconRotation;
     
     
     public abstract void Use();

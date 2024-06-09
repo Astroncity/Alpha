@@ -16,7 +16,7 @@ public class BasicPistol : Weapon {
 
     public Transform laserStart;
     public LineRenderer laser;
-    public static ActionPopup popup = new("Grab Pistol", 'E');
+    public static ActionPopup popup = new("Grab[Pistol]", 'E');
 
 
     public void Start(){
