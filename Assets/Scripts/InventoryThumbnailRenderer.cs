@@ -9,6 +9,8 @@ public class InventoryThumbnailRenderer{
     private Camera cam;
     private Transform offset;
     private VolumeProfile volume;
+    private float defExp = 0;
+    private float defsat = 0;
 
 
     public InventoryThumbnailRenderer(GameObject camObj, VolumeProfile volume){
@@ -26,21 +28,31 @@ public class InventoryThumbnailRenderer{
         
         GameObject newObj = MonoBehaviour.Instantiate(orgObj.gameObject, offset.position, Quaternion.identity, cam.transform);
         newObj.transform.localRotation = temp;
+        cam.orthographicSize += orgObj.iconDistanceMult / 100;
         newObj.layer = LayerMask.NameToLayer("InventoryRendering");
         foreach(Transform t in newObj.GetComponentsInChildren<Transform>()){
             t.gameObject.layer = LayerMask.NameToLayer("InventoryRendering");
         }
         cam.targetTexture = texture;
         volume.TryGet<ColorAdjustments>(out ColorAdjustments color);
-        float defExp = color.postExposure.value;
-        float defsat = color.saturation.value;
+        PrePost(color);
+        cam.Render();
+        PostPost(color);
+        //MonoBehaviour.Destroy(newObj);
+        cam.targetTexture = null;
+        return texture;        
+    }
+
+
+    private void PrePost(ColorAdjustments color){
+        defExp = color.postExposure.value;
+        defsat = color.saturation.value;
         color.postExposure.value = 1;
         color.saturation.value = 100;
-        cam.Render();
-        cam.targetTexture = null;
+    }
+
+    private void PostPost(ColorAdjustments color){
         color.postExposure.value = defExp;
         color.saturation.value = defsat;
-        MonoBehaviour.Destroy(newObj);
-        return texture;
     }
 }

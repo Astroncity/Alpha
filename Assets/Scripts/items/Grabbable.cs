@@ -9,6 +9,7 @@ public abstract class Grabbable : MonoBehaviour, IPopup{
     public static float grabDistance = 5f;
     public RenderTexture icon;
     public Quaternion iconRotation;
+    public float iconDistanceMult = 1;
     
     
     public abstract void Use();

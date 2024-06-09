@@ -76,6 +76,9 @@ public class PlayerController : MonoBehaviour{
     public RawImage testInvetoryIcon;
     public Camera inventoryCam;
     public InventoryThumbnailRenderer thumbnailRenderer;
+    [SerializeField] private Vector2Int thumbnailSize = new Vector2Int(48 << 5, 64 << 5);
+    private Vector2Int thumbnailRectSize = new Vector2Int(48, 64);
+    private bool setThumbnail = false;
     //! end temp
     public bool electrified = false;
 
@@ -95,6 +98,9 @@ public class PlayerController : MonoBehaviour{
 
         //!temp
         thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam.gameObject, volumeProfile);
+        RectTransform rt = testInvetoryIcon.GetComponent<RectTransform>();
+        //change image size to match thumbnail size but scale down to rect size
+        rt.sizeDelta = new Vector2(thumbnailRectSize.x, thumbnailRectSize.y);
 
         // -- DEBUFF SETUP --
         DebuffDefinitions.player = this;
@@ -121,11 +127,13 @@ public class PlayerController : MonoBehaviour{
     public void Update(){
         //Debug.Log(holding?.name ?? "null");
         if(holding != null){
-            if(holding.icon == null) holding.icon = thumbnailRenderer.Render(new Vector2Int(48 * 5, 64 * 5), holding);
-            testInvetoryIcon.texture = holding.icon;
+            if(holding.icon == null) holding.icon = thumbnailRenderer.Render(thumbnailSize, holding);
+            if(!setThumbnail){
+                testInvetoryIcon.texture = holding.icon;
+                setThumbnail = true;
+            }
             if(holding is Weapon) HandleWeapon();
             if(holding is Throwable) holding.Use();
-            
         }
 
         handleLook();
@@ -136,6 +144,7 @@ public class PlayerController : MonoBehaviour{
 
         if(Input.GetKeyDown(KeyCode.T)){
             holding?.Drop();
+            setThumbnail = false;
         }
 
         if(!electrified && Input.GetKeyDown(KeyCode.E)){

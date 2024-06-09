@@ -274,7 +274,8 @@ MonoBehaviour:
   - {fileID: 1134372077063781320}
   - {fileID: 9193745990798286632}
   icon: {fileID: 0}
-  iconRotation: {x: 0.32417715, y: -0.62841797, z: -0.32417715, w: -0.62841797}
+  iconRotation: {x: 0.3535534, y: -0.6123724, z: -0.3535534, w: -0.6123724}
+  iconDistanceMult: -8
   hitEffect: {fileID: 3488015256751721077, guid: 80b070b93aef75e418ea7222e92366a2,
     type: 3}
   type: 1
