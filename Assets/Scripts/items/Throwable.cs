@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Throwable : Grabbable{
@@ -14,12 +12,17 @@ public class Throwable : Grabbable{
 
     public override void Use(){
         if(Input.GetMouseButtonUp(0)){
-            Drop();
-            rb.mass *= 2;
-            rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
-            rb.AddTorque(Random.insideUnitSphere.normalized * 5, ForceMode.Impulse);
-            thrown = true;
+            Throw();
         }
+    }
+
+
+    private void Throw(){
+        Drop();
+        rb.mass *= 2;
+        rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
+        rb.AddTorque(Random.insideUnitSphere.normalized * 5, ForceMode.Impulse);
+        thrown = true;
     }
 
 

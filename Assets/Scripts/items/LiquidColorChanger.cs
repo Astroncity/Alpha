@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LiquidColorChanger : MonoBehaviour{
@@ -10,7 +8,6 @@ public class LiquidColorChanger : MonoBehaviour{
 
     public void Start(){
         c = new Color(Random.Range(0.2f, 1f), Random.Range(0.2f, 1f), Random.Range(0.2f, 1f), 1f);
-        //normalize color
         c /= c.maxColorComponent;
         SetObjColor();
     }

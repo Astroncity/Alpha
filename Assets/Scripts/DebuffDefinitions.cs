@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using TMPro;
-
 
 
 [System.Serializable]
@@ -18,10 +15,12 @@ public static class DebuffDefinitions{
     public static PlayerController player;
     public static Vignette vignette;
     public static float debuffIntensity = 0;
-    private static float lerpRate = 0.5f;
+    private readonly static float lerpRate = 0.5f;
 
 
     public static void GetDebuff(AttackType type){
+        if(!Valid()) return;
+
         switch(type){
             case AttackType.Goo:
                 GooDebuff();
@@ -30,6 +29,15 @@ public static class DebuffDefinitions{
                 ElectricDebuff();
                 break;
         }
+    }
+
+
+    private static bool Valid(){
+        if(player is null || vignette is null){
+            Debug.LogError("Player or Vignette is null");
+            return false;
+        }
+        return true;
     }
 
 

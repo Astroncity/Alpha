@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
 using UnityEngine;
 using System;
 
 public class Door : MonoBehaviour, IPopup{
     public bool connected;
     private bool locked;
+    public GameObject windowBlocker;
     [HideInInspector] public bool collidingWithOtherDoor = false;
     [HideInInspector] public GameObject room;
     [SerializeField] private Keypad keypad1;
@@ -24,11 +22,12 @@ public class Door : MonoBehaviour, IPopup{
     }
 
 
-    public void Update(){
+    private void Update(){
         HandleOpen();
     }
 
-    public void setLock(bool isLocked){
+
+    public void SetLock(bool isLocked){
         locked = isLocked;
         keypad1.locked.SetActive(locked);
         keypad1.unlocked.SetActive(!locked);
@@ -38,10 +37,9 @@ public class Door : MonoBehaviour, IPopup{
     }
 
 
-    public void enableCol(){
+    public void EnableCol(){
         col.enabled = true;
     }
-
 
 
     public void HandleOpen(){
@@ -49,10 +47,10 @@ public class Door : MonoBehaviour, IPopup{
 
         col.enabled = false;
         actionPopup = new ActionPopup("", ' ');
-        setLock(true);
+        SetLock(true);
         connected = false;
         
-        Invoke("enableCol", 0.1f);
+        Invoke(nameof(EnableCol), 0.1f);
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.None;
         rb.useGravity = true;
@@ -74,20 +72,20 @@ public class Door : MonoBehaviour, IPopup{
     }
 
 
-    public void OnCollisionEnter(Collision col){
+    private void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "door"){
             collidingWithOtherDoor = true;
         }
     }
 
-    public void OnCollisionExit(Collision col){
+    private void OnCollisionExit(Collision col){
         if(col.gameObject.tag == "door"){
             collidingWithOtherDoor = false;
         }
     }
 
 
-    public void OnDestroy(){
+    private void OnDestroy(){
         room.GetComponent<Room>().doors.Remove(gameObject);
     }
     

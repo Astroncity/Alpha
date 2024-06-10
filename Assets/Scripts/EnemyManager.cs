@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour{
 
-    public void Update(){
+    private void Update(){
         foreach(List<Action> actions in Enemy.thruManager){
             foreach(Action action in actions){
                 action();

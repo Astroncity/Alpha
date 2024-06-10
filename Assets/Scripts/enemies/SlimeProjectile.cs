@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SlimeProjectile : MonoBehaviour{
@@ -8,7 +5,16 @@ public class SlimeProjectile : MonoBehaviour{
     public AttackType type;
 
 
-    public void OnCollisionEnter(Collision col){
+    public void Init(float damage, AttackType type, Vector3 velocity, bool super){
+        this.damage = damage;
+        this.type = type;
+        GetComponent<Rigidbody>().velocity = velocity;
+        transform.LookAt(PlayerController.player.transform.position);
+        if(!super) transform.localScale /= 2;
+    }
+
+
+    private void OnCollisionEnter(Collision col){
         Grabbable holding = PlayerController.instance.holding;
         if(col.gameObject.tag == "Player" || holding != null && holding == col.gameObject.GetComponent<Grabbable>()){
             PlayerController.instance.Damage(damage, type);
@@ -19,8 +25,6 @@ public class SlimeProjectile : MonoBehaviour{
                 Destroy(gameObject);
             }
         }
-        
-        
     }
 
 }

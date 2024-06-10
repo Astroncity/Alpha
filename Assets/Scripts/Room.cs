@@ -1,18 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Utils;
+using RandomListSelection;
 
 public class Room : MonoBehaviour{
-    [HideInInspector] public List<GameObject> doors;
     public Transform doorStart;
-    [HideInInspector] public List<Enemy> enemies;
-    [Header("Temporary")] public GameObject testEnemyPrefab;
     public GameObject roomObj;
+    [HideInInspector] public List<GameObject> doors;
+    [HideInInspector] public List<Enemy> enemies;
 
 
-    public void Update(){
-        checkUnlock();
+    private void Update(){
+        CheckUnlock();
     }
 
 
@@ -24,20 +22,20 @@ public class Room : MonoBehaviour{
             float y = col.bounds.max.y;
             Vector3 pos = new(x, y, z);
 
-            GameObject enemy = Instantiate(PrefabManager.instance.enemies.Random(), pos, Quaternion.identity, transform);
-            enemy.GetComponent<Enemy>().parentRoom = gameObject;
-            enemies.Add(enemy.GetComponent<Enemy>());
+            Enemy enemy = Instantiate(PrefabManager.inst.enemies.Random(), pos, Quaternion.identity, transform).GetComponent<Enemy>();
+            enemy.parentRoom = this;
+            enemies.Add(enemy);
 
         }
     }
 
 
-    public void checkUnlock(){
+    public void CheckUnlock(){
         if(enemies.Count == 0){
             for(int i = 0; i < doors.Count; i++){
                 Door door = doors[i].GetComponent<Door>();
                 if(door.connected){
-                    door.setLock(false);
+                    door.SetLock(false);
                 }
             }
         }
@@ -45,10 +43,16 @@ public class Room : MonoBehaviour{
             for(int i = 0; i < doors.Count; i++){
                 Door door = doors[i].GetComponent<Door>();
                 if(door.connected){
-                    door.setLock(true);
+                    door.SetLock(true);
                 }
             }
         }
+    }
+
+
+    public void AddEnemy(Enemy enemy){
+        enemies.Add(enemy);
+        enemy.parentRoom = this;
     }
 
 
@@ -62,9 +66,11 @@ public class Room : MonoBehaviour{
             Vector3 pos = doorStart.position - doorStart.up * 4;
             Ray ray = new(pos, doorStart.up);
             Debug.DrawRay(pos, doorStart.up * 5, Color.red, 1000f);
+
             if(Physics.Raycast(ray, out hit, 5f)){
                 if(hit.collider.attachedRigidbody.gameObject.tag == "door"){
-                    //?Debug.Log("door already there");
+                    hit.collider.gameObject.GetComponent<Door>().connected = true;
+                    hit.collider.gameObject.GetComponent<Door>().windowBlocker.SetActive(false);
                     doorStart.RotateAround(room.transform.position, Vector3.up, 90);
                     continue;
                 }
@@ -72,20 +78,16 @@ public class Room : MonoBehaviour{
                     Debug.Log(hit.collider.attachedRigidbody.gameObject.name);
                 }
             }
+            Door d = MonoBehaviour.Instantiate(door, doorStart.position, doorStart.rotation, room.transform).GetComponent<Door>();
             
+            r.doors.Add(d.gameObject);
+            d.connected = false;
+            d.windowBlocker.SetActive(true);
+            d.SetLock(true);
+            d.room = room;
             
-            GameObject d = MonoBehaviour.Instantiate(door, doorStart.position, doorStart.rotation, room.transform);
-            
-            r.doors.Add(d);
-            d.GetComponent<Door>().connected = false;
-            d.GetComponent<Door>().setLock(true);
-            d.GetComponent<Door>().room = room;
-            
-            //reset scale
             d.transform.localScale /= room.transform.lossyScale.x;
             doorStart.RotateAround(room.transform.position, Vector3.up, 90);
-
-
         }
     }
 }

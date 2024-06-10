@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -60,9 +56,9 @@ public class PlayerController : MonoBehaviour{
     public float fullHealthBarPos;
     public float healthBarWidth;
 
-    public Dictionary<AttackType, float> debuffs = new();
     [Header("Debuffs")] [Space(10)]
     public DebuffUIPackage[] debuffUIPackages; //* in order of AttackType
+    public Dictionary<AttackType, float> debuffs = new();
     private Vignette vignette;
     public VolumeProfile volumeProfile;
     public float vingnetteDefIntensity;
@@ -82,36 +78,35 @@ public class PlayerController : MonoBehaviour{
     //! end temp
     public bool electrified = false;
 
-    public void Start(){
-        volumeProfile.TryGet(out vignette);
-        vingnetteDefIntensity = vignette.intensity.value;
-        vignetteDefColor = vignette.color.value;
+
+    private void Start(){
         instance = this;
         player = gameObject;
         health = maxHealth;
+
         defFOV = Camera.main.fieldOfView;
         Cursor.lockState = CursorLockMode.Locked;
+        
+        InitBars();
+
+        //!temp
+        thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam, volumeProfile);
+        RectTransform rt = testInvetoryIcon.GetComponent<RectTransform>();
+        //change image size to match thumbnail size but scale down to rect size
+        rt.sizeDelta = new Vector2(thumbnailRectSize.x, thumbnailRectSize.y);
+        InitDebuffsAndEffects();
+    }
+
+
+    private void InitBars(){
         fullBarPos = ammoBar.GetComponent<RectTransform>().rect.x + ammoBar.GetComponent<RectTransform>().rect.width / 2;
         barWidth = ammoBar.GetComponent<RectTransform>().rect.width / 7.5f;
         fullHealthBarPos = healthBar.GetComponent<RectTransform>().rect.x + healthBar.GetComponent<RectTransform>().rect.width / 2;
         healthBarWidth = healthBar.GetComponent<RectTransform>().rect.width / 7.5f;
-
-        //!temp
-        thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam.gameObject, volumeProfile);
-        RectTransform rt = testInvetoryIcon.GetComponent<RectTransform>();
-        //change image size to match thumbnail size but scale down to rect size
-        rt.sizeDelta = new Vector2(thumbnailRectSize.x, thumbnailRectSize.y);
-
-        // -- DEBUFF SETUP --
-        DebuffDefinitions.player = this;
-        DebuffDefinitions.vignette = vignette;
-        DebuffDefinitions.debuffIntensity = vignette.intensity.value * 0.9f;
-        InitDebuffs();
     }
 
 
-
-    public void displayPopup(){
+    private void DisplayPopup(){
         if(lookingAt == null) return;
 
         IPopup p = lookingAt.GetComponent<IPopup>();
@@ -124,7 +119,8 @@ public class PlayerController : MonoBehaviour{
         }
     }
 
-    public void Update(){
+
+    private void Update(){
         //Debug.Log(holding?.name ?? "null");
         if(holding != null){
             if(holding.icon == null) holding.icon = thumbnailRenderer.Render(thumbnailSize, holding);
@@ -136,8 +132,8 @@ public class PlayerController : MonoBehaviour{
             if(holding is Throwable) holding.Use();
         }
 
-        handleLook();
-        displayPopup();
+        HandleLook();
+        DisplayPopup();
         Move();
         HandleHealthBar();
         HandleDebuffs();
@@ -167,15 +163,15 @@ public class PlayerController : MonoBehaviour{
         }
     }
 
-    public void FixedUpdate(){
+
+    private void FixedUpdate(){
         ApplyMovementForce(inputDir, speed);
         Jump();
     }
 
 
-    void handleLook(){
-        RaycastHit hit;
-        if(Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, lookRange, ~LayerMask.GetMask("Player"))){
+    private void HandleLook(){
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, lookRange, ~LayerMask.GetMask("Player"))){
             lookingAt = hit.collider.gameObject;
         }
         else{
@@ -184,14 +180,12 @@ public class PlayerController : MonoBehaviour{
     }
 
 
-    void HandleWeapon(){
+    private void HandleWeapon(){
         Weapon wep = (Weapon)holding;
         wep.Use();
         wep.Sway(8, 2);
         ammoText.text = wep.AmmoInfo();
 
-        //* Update bar;
-        // move bar to the left
         RectTransform rt = ammoBar.GetComponent<RectTransform>();
         float ycomp = rt.localPosition.y;
         rt.localPosition = Vector3.Lerp(rt.localPosition, new Vector3(fullBarPos - barWidth + (barWidth * wep.AmmoPercent()), ycomp, 0), 7f * Time.deltaTime);
@@ -212,7 +206,7 @@ public class PlayerController : MonoBehaviour{
     }
 
 
-    void HandleHealthBar(){
+    private void HandleHealthBar(){
         RectTransform rt = healthBar.GetComponent<RectTransform>();
         float ycomp = rt.localPosition.y;
         rt.localPosition = Vector3.Lerp(rt.localPosition, new Vector3(fullHealthBarPos - healthBarWidth + (healthBarWidth * health/maxHealth), ycomp, 0), 7f * Time.deltaTime);
@@ -220,22 +214,21 @@ public class PlayerController : MonoBehaviour{
     }
 
 
-    void ApplyMovementForce(Vector3 dir, float speed){
+    private void ApplyMovementForce(Vector3 dir, float speed){
         rb.AddForce(dir * speed * 10f, ForceMode.Force);
+        if(!grounded) rb.AddForce(Vector3.down * 5, ForceMode.Force);
     }
 
-    void Jump(){
+
+    private void Jump(){
         if(grounded && jumping){
             rb.AddForce(Vector3.up * 20, ForceMode.Impulse);
         }
     }
 
 
-
-
-
-    void Move(){
-        bool moving = false;
+    private void Move(){
+        bool moving;
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -248,15 +241,12 @@ public class PlayerController : MonoBehaviour{
             sprinting = false;
         }
 
+        transform.rotation = new Quaternion(0, Camera.main.transform.rotation.y, 0,  Camera.main.transform.rotation.w);
+
 
         jumping = Input.GetKey(KeyCode.Space);
-
-        //check ground
         grounded = Physics.Raycast(transform.position, -transform.up, 1.1f);
-        //extra gravity
-        if(!grounded) rb.AddForce(Vector3.down * 5, ForceMode.Force);
-        if(grounded || !grounded) rb.drag = groundDrag;
-        else rb.drag = 0;
+        rb.drag = groundDrag;
 
         inputDir = transform.forward * verticalInput + transform.right * horizontalInput;
         moving = inputDir.magnitude > 0;
@@ -272,21 +262,23 @@ public class PlayerController : MonoBehaviour{
         else{ //static
             Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, defFOV, 7f * Time.deltaTime);
         }
-
-        transform.rotation = new Quaternion(0, Camera.main.transform.rotation.y, 0,  Camera.main.transform.rotation.w);
     }
+
 
     private void HandleDebuffs(){
         bool debuffActive = false;
         bool seenElectric = false;
+
         for(int i = 0; i < debuffUIPackages.Length; i++){
             AttackType debuff = (AttackType)i + 1;
             if(debuffs[debuff] <= 0){
                 HandleDebuffPackage(debuff, false, 0);
                 continue;
             }
+
             debuffActive = true;
             debuffs[debuff] -= Time.deltaTime;
+
             DebuffDefinitions.GetDebuff(debuff);
             HandleDebuffPackage(debuff, true, debuffs[debuff]);
 
@@ -294,16 +286,14 @@ public class PlayerController : MonoBehaviour{
                 seenElectric = true;
             }
         }
-
         electrified = seenElectric;
-
         if(!debuffActive){
             ResetVignette();
         }
     }
 
 
-    void HandleDebuffPackage(AttackType type, bool active, float dur){
+    private void HandleDebuffPackage(AttackType type, bool active, float dur){
         int index = (int)type - 1;
         if(index > debuffUIPackages.Length - 1) return; //! Temp while not all debuffs are implemented
         DebuffUIPackage package = debuffUIPackages[(int)type - 1];
@@ -322,7 +312,7 @@ public class PlayerController : MonoBehaviour{
     }
 
 
-    public void ResetVignette(){
+    private void ResetVignette(){
         vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, vingnetteDefIntensity, 7f * Time.deltaTime);
         vignette.color.value = Color.Lerp(vignette.color.value, vignetteDefColor, 7f * Time.deltaTime);
     }
@@ -334,13 +324,21 @@ public class PlayerController : MonoBehaviour{
         }
     }
 
-    private void InitDebuffs(){
+
+    private void InitDebuffsAndEffects(){
+        volumeProfile.TryGet(out vignette);
+        vingnetteDefIntensity = vignette.intensity.value;
+        vignetteDefColor = vignette.color.value;
+        
+        DebuffDefinitions.player = this;
+        DebuffDefinitions.vignette = vignette;
+        DebuffDefinitions.debuffIntensity = vignette.intensity.value * 0.9f;
+
         for(int i = 1; i < Enum.GetValues(typeof(AttackType)).Length; i++){
             debuffs.Add((AttackType)i, 0);
         }
 
     }
-
 
 
     public void Damage(float damage, AttackType type){

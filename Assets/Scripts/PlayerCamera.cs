@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour{
@@ -8,16 +6,15 @@ public class PlayerCamera : MonoBehaviour{
     public float maxAngle;
     public float minAngle;
 
-    void Awake(){
+    private void Awake(){
         GetComponent<Camera>().depth = 20;
     }
 
-    void Update(){
+    private void Update(){
         transform.position = PlayerController.player.transform.position + new Vector3(0, 1f, 0);
         
         float xr = Input.GetAxis("Mouse X"); float yr = -Input.GetAxis("Mouse Y");
         rotationX += yr; rotationY += xr;
-
         transform.rotation = Quaternion.Euler(new Vector3(rotationX, rotationY, 0));
 
         if(rotationX > maxAngle){

@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 
@@ -15,10 +11,11 @@ public enum WeaponType{
 public abstract class Weapon : Grabbable{
     public GameObject hitEffect;
     public WeaponType type;
+
+    [Header("Weapon Stats")]
     public float reloadTime;
     public float reloadTimer;
     public bool reloading;
-
 
     
     public abstract string AmmoInfo();

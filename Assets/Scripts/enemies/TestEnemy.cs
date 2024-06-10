@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class TestEnemy : Enemy{
@@ -11,7 +8,7 @@ public class TestEnemy : Enemy{
     }
 
 
-    public override void Update(){
+    protected override void Update(){
         base.Update();
         if(health <= 0){
             Destroy(gameObject);
@@ -22,7 +19,7 @@ public class TestEnemy : Enemy{
     }
 
 
-    public void OnCollisionEnter(Collision col){
+    private void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "Player"){
             PlayerController.instance.Damage(10, AttackType.Normal);
         }

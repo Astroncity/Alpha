@@ -4,9 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class Grabbable : MonoBehaviour, IPopup{
+    [Header("Grabbable Info")]
     public Rigidbody rb;
     public Collider[] colliders;
     public static float grabDistance = 5f;
+
+    [Header("Icon Info")]
     public RenderTexture icon;
     public Quaternion iconRotation;
     public float iconDistanceMult = 1;

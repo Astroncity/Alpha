@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GenerateDungeon : MonoBehaviour{
@@ -15,28 +12,20 @@ public class GenerateDungeon : MonoBehaviour{
     public int roomCount;
 
 
-    void Start(){
+    private void Start(){
         roomQueue = new Queue<GameObject>();
         Room.Init(origin, doorPrefab);
         Generate(origin, rooms, doorPrefab);
     }
 
-    void Update(){
+
+    private void Update(){
         roomCount = rmList.Count + 1;
-        if(Input.GetKeyDown(KeyCode.F5)){
-            foreach(GameObject rm in rmList){
-                Destroy(rm);
-            }
-        }
-        if(Input.GetKeyDown(KeyCode.F6)){
-            Generate(origin, rooms, doorPrefab);
-        }
-        renderOnlyAdjacentRooms();
+        RenderRooms();
     }
 
 
-    public void renderOnlyAdjacentRooms(){
-        //enable / disable rooms based on distance from player
+    public void RenderRooms(){
         foreach(GameObject rm in rmList){
             if(Vector3.Distance(rm.transform.position, PlayerController.player.transform.position) > roomRenderDistance){
                 rm.SetActive(false);
@@ -53,7 +42,6 @@ public class GenerateDungeon : MonoBehaviour{
     ///</summary>
     public void Generate(GameObject origin, int n, GameObject doorPrefab){
         float offset = -roomList.roomPrefabs[0].GetComponent<Room>().roomObj.transform.GetChild(1).GetComponent<MeshRenderer>().bounds.size.z / 2;
-        
         roomQueue.Enqueue(origin);
 
         while(rmList.Count < (n - 1)){
@@ -64,22 +52,21 @@ public class GenerateDungeon : MonoBehaviour{
                 float p = Random.Range(0f, 1f);
 
                 if(p <= 0.33f){
-                    createRoom(doors, offset, i, doorPrefab);
+                    CreateRoom(doors, offset, i, doorPrefab);
                     added = true;
                 }
             }
             if(!added){
-                int door = getAvailableDoor(doors);
+                int door = GetAvailableDoor(doors);
                 if(door == -1) continue;
-                createRoom(doors, offset, door, doorPrefab);
+                CreateRoom(doors, offset, door, doorPrefab);
             }
         }
-
         roomQueue.Clear();
     }
 
 
-    private int getAvailableDoor(List<GameObject> doors){
+    private int GetAvailableDoor(List<GameObject> doors){
         for(int i = 0; i < doors.Count; i++){
             if(doors[i].activeSelf){
                 return i;
@@ -89,7 +76,7 @@ public class GenerateDungeon : MonoBehaviour{
     }
 
 
-    private void createRoom(List<GameObject> doors, float offset, int i, GameObject doorPrefab){
+    private void CreateRoom(List<GameObject> doors, float offset, int i, GameObject doorPrefab){
         Vector3 pos = doors[i].transform.position;
         pos += doors[i].transform.up * offset;
 
@@ -101,6 +88,7 @@ public class GenerateDungeon : MonoBehaviour{
 
         //set door
         doors[i].GetComponent<Door>().connected = true;
+        doors[i].GetComponent<Door>().windowBlocker.SetActive(false);
 
         //* remove door
         Room.Init(room, doorPrefab);
