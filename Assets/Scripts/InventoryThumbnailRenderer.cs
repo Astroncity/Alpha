@@ -24,7 +24,7 @@ public class InventoryThumbnailRenderer{
         Quaternion temp = orgObj.iconRotation;
         GameObject newObj = MonoBehaviour.Instantiate(orgObj.gameObject, offset.position, Quaternion.identity, cam.transform);
         newObj.transform.localRotation = temp;
-        cam.orthographicSize += orgObj.iconDistanceMult / 100;
+        newObj.transform.position += cam.transform.forward * orgObj.iconDistanceMult / 10;
         
         newObj.layer = LayerMask.NameToLayer("InventoryRendering");
         foreach(Transform t in newObj.GetComponentsInChildren<Transform>()){
@@ -51,7 +51,7 @@ public class InventoryThumbnailRenderer{
     private void PrePost(ColorAdjustments color){
         defExp = color.postExposure.value;
         defsat = color.saturation.value;
-        color.postExposure.value = 1;
+        color.postExposure.value = 2;
         color.saturation.value = 100;
     }
 

@@ -18,7 +18,7 @@ public class Throwable : Grabbable{
 
 
     private void Throw(){
-        Drop();
+        PlayerController.instance.Drop();
         rb.mass *= 2;
         rb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
         rb.AddTorque(Random.insideUnitSphere.normalized * 5, ForceMode.Impulse);

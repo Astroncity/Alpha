@@ -52,3 +52,8 @@ public abstract class Enemy : MonoBehaviour{
         count--;
     }
 }
+
+
+
+// adjusted: 4.137
+// orginal: 4.17182

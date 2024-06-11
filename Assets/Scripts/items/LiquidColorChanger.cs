@@ -18,7 +18,7 @@ public class LiquidColorChanger : MonoBehaviour{
         Debug.Log(effectMat.name);
         Material mat = new(effectMat);
         mat.SetColor("_EmissionColor", c * 4f);
-        mat.SetColor("_Color", c);
+        mat.SetColor("_BaseColor", c);
         effect.GetComponent<ParticleSystemRenderer>().material = mat;
     }
 
@@ -26,7 +26,7 @@ public class LiquidColorChanger : MonoBehaviour{
     public void SetObjColor(){
         Material mat = new(material);
         mat.SetColor("_EmissionColor", c * 4f);
-        mat.SetColor("_Color", c);
+        mat.SetColor("_BaseColor", c);
         liquid.GetComponent<MeshRenderer>().material = mat;
         RandomizeRotation();
     }

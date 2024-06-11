@@ -99,6 +99,7 @@ MonoBehaviour:
   - {fileID: 8497808417313066454}
   icon: {fileID: 0}
   iconRotation: {x: 0, y: 0, z: 0, w: 0}
+  iconDistanceMult: -2.75
   throwForce: 50
   damage: 5
   hitEffect: {fileID: 3488015256751721077, guid: e0037b313949816419ece5c7c10c9a75,

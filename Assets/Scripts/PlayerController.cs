@@ -65,17 +65,18 @@ public class PlayerController : MonoBehaviour{
     public Color vignetteDefColor;
 
     [Header("Grabbables")] [Space(10)]  
-    public static GameObject lookingAt;
     public TextMeshProUGUI actionDescription;
+    public static GameObject lookingAt;
+    public Image actionBackground;
     public Grabbable holding;
-    //! temp
-    public RawImage testInvetoryIcon;
+    
+    [Header("Inventory Handling")] [Space(10)]
+    public InventorySlot[] inventorySlots;
+    private int currentSlot = 0;
     public Camera inventoryCam;
     public InventoryThumbnailRenderer thumbnailRenderer;
-    [SerializeField] private Vector2Int thumbnailSize = new Vector2Int(48 << 5, 64 << 5);
-    private Vector2Int thumbnailRectSize = new Vector2Int(48, 64);
-    private bool setThumbnail = false;
-    //! end temp
+    public Vector2Int thumbnailSize = new Vector2Int(64 << 5, 64 << 5);
+    private Vector2Int thumbnailRectSize = new Vector2Int(32, 32);
     public bool electrified = false;
 
 
@@ -88,14 +89,11 @@ public class PlayerController : MonoBehaviour{
         Cursor.lockState = CursorLockMode.Locked;
         
         InitBars();
-
-        //!temp
-        thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam, volumeProfile);
-        RectTransform rt = testInvetoryIcon.GetComponent<RectTransform>();
-        //change image size to match thumbnail size but scale down to rect size
-        rt.sizeDelta = new Vector2(thumbnailRectSize.x, thumbnailRectSize.y);
+        InventorySlot.InitInventorySlots(inventorySlots, thumbnailRectSize);
         InitDebuffsAndEffects();
+        thumbnailRenderer = new InventoryThumbnailRenderer(inventoryCam, volumeProfile);
     }
+
 
 
     private void InitBars(){
@@ -108,14 +106,15 @@ public class PlayerController : MonoBehaviour{
 
     private void DisplayPopup(){
         if(lookingAt == null) return;
-
         IPopup p = lookingAt.GetComponent<IPopup>();
         if(p != null && p.GetPopup().description != "" && p.GetPopup().key != ' '){
             ActionPopup popup = lookingAt.GetComponent<IPopup>().GetPopup();
             actionDescription.text = "[" + popup.key + "]-" + popup.description;
+            actionBackground.enabled = true;
         }
         else{
             actionDescription.text = "";
+            actionBackground.enabled = false;
         }
     }
 
@@ -123,11 +122,6 @@ public class PlayerController : MonoBehaviour{
     private void Update(){
         //Debug.Log(holding?.name ?? "null");
         if(holding != null){
-            if(holding.icon == null) holding.icon = thumbnailRenderer.Render(thumbnailSize, holding);
-            if(!setThumbnail){
-                testInvetoryIcon.texture = holding.icon;
-                setThumbnail = true;
-            }
             if(holding is Weapon) HandleWeapon();
             if(holding is Throwable) holding.Use();
         }
@@ -137,30 +131,57 @@ public class PlayerController : MonoBehaviour{
         Move();
         HandleHealthBar();
         HandleDebuffs();
+        HandleInventory();
 
-        if(Input.GetKeyDown(KeyCode.T)){
-            holding?.Drop();
-            setThumbnail = false;
-        }
-
-        if(!electrified && Input.GetKeyDown(KeyCode.E)){
-            Grab();
-        }
-
-        //Debug.Log("Enemies: " + Enemy.count.ToString());
-        //Debug.Log(lookingAt?.name ?? "null");
+        if(Input.GetKeyDown(KeyCode.T)) Drop();
+        if(!electrified && Input.GetKeyDown(KeyCode.E)) Grab();
     }
 
 
     private void Grab(){
         if(lookingAt != null && Vector3.Distance(transform.position, lookingAt.transform.position) < Grabbable.grabDistance){
-            Grabbable p = lookingAt.GetComponent<Grabbable>();
-            if(p != null){
-                holding?.Drop();
-                p.Grab();
-                holding = p;
+            Grabbable item = lookingAt.GetComponent<Grabbable>();
+            if(item == null) return;
+            (InventorySlot slot, int index) nextSlot = InventorySlot.GetNextEmptySlot(inventorySlots);
+            if(inventorySlots[currentSlot].isEmpty()){
+                nextSlot.slot = inventorySlots[currentSlot];
+                nextSlot.index = currentSlot;
             }
+            else if(nextSlot.slot == null){
+                Drop();
+                nextSlot.slot = inventorySlots[currentSlot];
+                nextSlot.index = currentSlot;
+            }
+            nextSlot.slot.item = item.Grab();
+            if(item.icon == null) item.icon = thumbnailRenderer.Render(thumbnailSize, item);
+            nextSlot.slot.SetIcon(item.icon);
+            ChangeSlot(nextSlot.index);
         }
+    }
+
+
+    public void Drop(){
+        holding.gameObject.SetActive(true);
+        holding.Drop();
+        inventorySlots[currentSlot].Clear();
+        holding = null;
+    }
+
+
+    private void HandleInventory(){
+        if(Input.GetKeyDown(KeyCode.Alpha1)) ChangeSlot(0);
+        else if(Input.GetKeyDown(KeyCode.Alpha2)) ChangeSlot(1);
+        else if(Input.GetKeyDown(KeyCode.Alpha3)) ChangeSlot(2);
+    }
+
+
+    private void ChangeSlot(int slot){
+        inventorySlots[currentSlot].Deselect();
+        currentSlot = slot;
+        holding?.gameObject.SetActive(false);
+        holding = inventorySlots[slot].item;
+        holding?.gameObject.SetActive(true);
+        inventorySlots[slot].Select();
     }
 
 
@@ -216,7 +237,7 @@ public class PlayerController : MonoBehaviour{
 
     private void ApplyMovementForce(Vector3 dir, float speed){
         rb.AddForce(dir * speed * 10f, ForceMode.Force);
-        if(!grounded) rb.AddForce(Vector3.down * 5, ForceMode.Force);
+        if(!grounded) rb.AddForce(Vector3.down * 20, ForceMode.Acceleration);
     }
 
 
@@ -228,8 +249,9 @@ public class PlayerController : MonoBehaviour{
 
 
     private void Move(){
-        bool moving;
+        grounded = Physics.Raycast(transform.position, -transform.up, 1.1f);
         horizontalInput = Input.GetAxisRaw("Horizontal");
+        if(!grounded) horizontalInput = 0;
         verticalInput = Input.GetAxisRaw("Vertical");
 
         if(Input.GetKey(KeyCode.LeftShift)){ 
@@ -245,11 +267,10 @@ public class PlayerController : MonoBehaviour{
 
 
         jumping = Input.GetKey(KeyCode.Space);
-        grounded = Physics.Raycast(transform.position, -transform.up, 1.1f);
         rb.drag = groundDrag;
 
         inputDir = transform.forward * verticalInput + transform.right * horizontalInput;
-        moving = inputDir.magnitude > 0;
+        bool moving = inputDir.magnitude > 0;
 
         if(moving){
             if(speed != defSpeed){ //sprint

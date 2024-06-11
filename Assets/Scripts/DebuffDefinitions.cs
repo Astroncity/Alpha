@@ -55,7 +55,7 @@ public static class DebuffDefinitions{
 
     private static void ElectricDebuff(){
         player.health -= 0.5f;
-        if(!player.electrified) player.holding.Drop();
+        if(!player.electrified) player.Drop();
         player.electrified = true;
         HandleVignette(Color.blue);
     }

@@ -13,7 +13,7 @@ public class BasicPistol : Weapon{
     
 
     [Header("Laser Info")]
-    public bool laserEnabled = true;
+    public bool laserEnabled = false;
     public Transform laserStart;
     public LineRenderer laser;
     public GameObject laserLight;
@@ -25,6 +25,19 @@ public class BasicPistol : Weapon{
     private void Start(){
         ammo = magSize;
         type = WeaponType.Ranged;
+        laserEnabled = false;
+    }
+
+
+    public override Grabbable Grab(){
+        base.Grab();
+        laserEnabled = true;
+        return this;
+    }
+
+    public override void Drop(){
+        base.Drop();
+        laserEnabled = false;
     }
 
 
@@ -44,6 +57,10 @@ public class BasicPistol : Weapon{
     public override string AmmoInfo(){return ammo + " / " + magSize;}
 
     private void OnEnemyHit(Enemy enemy, bool isSplash = false){
+        if(enemy is null){
+            Debug.Log("Enemy is null");
+            return;
+        }
         if(!isSplash) enemy.Damage(damage);
         else enemy.Damage(damage * splashDamageFalloff);
     }
@@ -61,8 +78,7 @@ public class BasicPistol : Weapon{
     private void HandleLaser(){
         if(laserEnabled){
             RaycastHit hit;
-            Vector3 rayPos = new Vector3(Screen.width / 2, Screen.height / 2);
-            Ray ray = Camera.main.ScreenPointToRay(rayPos, 0);
+            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             laserLight.SetActive(true);
 
             if(Physics.Raycast(ray, out hit, range)){
@@ -78,7 +94,6 @@ public class BasicPistol : Weapon{
                 laser.SetPosition(1, inf);
                 laserLight.transform.position = inf;
             }
-            laserEnabled = false;
         }
         else{
             laser.SetPosition(0, laserStart.position);
@@ -98,16 +113,15 @@ public class BasicPistol : Weapon{
 
             // handle first hit
             if(hit.transform.tag == "Enemy"){
-                OnEnemyHit(hit.transform.GetComponent<Enemy>());
+                OnEnemyHit(hit.rigidbody.GetComponent<Enemy>());
             }
             hit.rigidbody.AddExplosionForce(500, hit.point, 3);
             hitList.Remove(hit.collider);
 
             // handle splash damage
             foreach(Collider c in hitList){
-                if(c.gameObject.transform.tag == "Enemy"){
-                    Enemy enemy = c.transform.GetComponent<Enemy>();
-                    if(enemy is null) c.transform.GetComponentInParent<Enemy>();
+                if(c.attachedRigidbody.tag == "Enemy"){
+                    Enemy enemy = c.attachedRigidbody.GetComponent<Enemy>();
                     OnEnemyHit(enemy, true);
                 }
                 c.attachedRigidbody.AddExplosionForce(250, hit.point, 3);

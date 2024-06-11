@@ -19,11 +19,12 @@ public abstract class Grabbable : MonoBehaviour, IPopup{
     public abstract ActionPopup GetPopup();
     
     
-    public virtual void Grab(){
+    public virtual Grabbable Grab(){
         foreach(Collider c in colliders){c.enabled = false;}
         rb.isKinematic = true;
         transform.position = Camera.main.transform.GetChild(0).position;
         transform.SetParent(Camera.main.transform, true);
+        return this;
     }
 
 
@@ -31,6 +32,5 @@ public abstract class Grabbable : MonoBehaviour, IPopup{
         foreach(Collider c in colliders){c.enabled = true;}
         rb.isKinematic = false;
         transform.SetParent(null, true);
-        PlayerController.player.GetComponent<PlayerController>().holding = null;
     }
 }

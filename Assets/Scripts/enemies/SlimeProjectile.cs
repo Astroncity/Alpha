@@ -16,13 +16,19 @@ public class SlimeProjectile : MonoBehaviour{
 
     private void OnCollisionEnter(Collision col){
         Grabbable holding = PlayerController.instance.holding;
+        Enemy hit = col.gameObject.GetComponent<Enemy>();
         if(col.gameObject.tag == "Player" || holding != null && holding == col.gameObject.GetComponent<Grabbable>()){
             PlayerController.instance.Damage(damage, type);
             Destroy(gameObject);
+            return;
+        }
+        else if(hit is not null){
+            if(hit == this) return;
         }
         else{
             if(col.gameObject.GetComponent<SlimeProjectile>() == null){
                 Destroy(gameObject);
+                Debug.Log("Projectile collided with [" + col.gameObject.name + "]");
             }
         }
     }

@@ -218,12 +218,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07759e38264718a4c97a8b52775b6518, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doors: []
   doorStart: {fileID: 6349612868449774222}
-  enemies: []
-  testEnemyPrefab: {fileID: 3795149366253145642, guid: 3ff5df850a75ec540beb4fee24aa1506,
-    type: 3}
   roomObj: {fileID: 3370559327557845261}
+  doors: []
+  enemies: []
 --- !u!1 &7353820299906258357
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Slime : Enemy{
     public static List<Slime> slimes = new();
+    [SerializeField] private GameObject pointLight;
+    private Color defEmission;
+    [SerializeField] private GameObject slimeObj;
 
     [Header("Slime Stats")]
     public GameObject projectileP;
@@ -38,6 +41,11 @@ public class Slime : Enemy{
             damage /= 2;
             transform.localScale /= 2;
         }
+
+        pointLight.SetActive(false);
+        defEmission = slimeObj.GetComponent<Renderer>().material.GetColor("_EmissionColor");
+        slimeObj.GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
+        Invoke(nameof(EnableLight), 0.5f); // avoid lights baking into reflection probes
     }
 
 
@@ -49,9 +57,17 @@ public class Slime : Enemy{
             Enemy.thruManager.Add(managerFuncs);
         }
     }
+
+
+    private void EnableLight(){
+        pointLight.SetActive(true);
+        defEmission.a = 1;
+        slimeObj.GetComponent<Renderer>().material.SetColor("_EmissionColor", defEmission);
+    }
     
 
     protected override void Update(){
+        
         base.Update();
         HandleDeath();
         Attack();
@@ -128,8 +144,12 @@ public class Slime : Enemy{
 
 
     public void Attack(){
+        transform.LookAt(PlayerController.player.transform);
+        transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+
         attackTimer += Time.deltaTime;
         Vector3 spawnPos = transform.position + new Vector3(0, 1.5f, 0);
+        spawnPos += transform.forward * 0.5f;
         float distance = Vector3.Distance(transform.position, PlayerController.player.transform.position);
 
         if(attackTimer > fireRate && distance < range){
