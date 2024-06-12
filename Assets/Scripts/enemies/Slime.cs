@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class Slime : Enemy{
     public static List<Slime> slimes = new();
-    [SerializeField] private GameObject pointLight;
-    private Color defEmission;
     [SerializeField] private GameObject slimeObj;
 
     [Header("Slime Stats")]
@@ -42,10 +40,6 @@ public class Slime : Enemy{
             transform.localScale /= 2;
         }
 
-        pointLight.SetActive(false);
-        defEmission = slimeObj.GetComponent<Renderer>().material.GetColor("_EmissionColor");
-        slimeObj.GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
-        Invoke(nameof(EnableLight), 0.5f); // avoid lights baking into reflection probes
     }
 
 
@@ -58,13 +52,6 @@ public class Slime : Enemy{
         }
     }
 
-
-    private void EnableLight(){
-        pointLight.SetActive(true);
-        defEmission.a = 1;
-        slimeObj.GetComponent<Renderer>().material.SetColor("_EmissionColor", defEmission);
-    }
-    
 
     protected override void Update(){
         

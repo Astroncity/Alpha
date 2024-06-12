@@ -9,6 +9,10 @@ public class Door : MonoBehaviour, IPopup{
     [HideInInspector] public GameObject room;
     [SerializeField] private Keypad keypad1;
     [SerializeField] private Keypad keypad2;
+    [SerializeField] private GameObject doorLight;
+    [SerializeField] private Material doorLightOpen;
+    [SerializeField] private Material doorLightClosed;
+
     public static ActionPopup actionPopup = new("Break Door", 'E');
     public static float popupRange = 5f;
     private bool inRange = false;
@@ -34,6 +38,13 @@ public class Door : MonoBehaviour, IPopup{
 
         keypad2.locked.SetActive(locked);
         keypad2.unlocked.SetActive(!locked);
+
+        if(locked){
+            doorLight.GetComponent<MeshRenderer>().material = doorLightClosed;
+        }
+        else{
+            doorLight.GetComponent<MeshRenderer>().material = doorLightOpen;
+        }
     }
 
 
@@ -44,10 +55,10 @@ public class Door : MonoBehaviour, IPopup{
 
     public void HandleOpen(){
         if(!Input.GetKeyDown(KeyCode.E) || !inRange || locked) return;
+        doorLight.transform.SetParent(transform.parent);
 
         col.enabled = false;
         actionPopup = new ActionPopup("", ' ');
-        SetLock(true);
         connected = false;
         
         Invoke(nameof(EnableCol), 0.1f);

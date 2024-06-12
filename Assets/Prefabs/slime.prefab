@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 512712902432531649}
   - component: {fileID: 7959528312575608982}
   - component: {fileID: 878153265387674760}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: slime
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -54,7 +54,6 @@ MonoBehaviour:
   maxHealth: 100
   health: 100
   speed: 2
-  pointLight: {fileID: 4564557391380864747}
   slimeObj: {fileID: 5477568589990127005}
   projectileP: {fileID: 3488015256751721077, guid: 64f68b19f10da7e4fb7abd252794c95b,
     type: 3}
@@ -94,13 +93,13 @@ GameObject:
   - component: {fileID: 8992227103705443291}
   - component: {fileID: 803315912575922329}
   - component: {fileID: 5843029707309558533}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8992227103705443291
 Transform:
   m_ObjectHideFlags: 0
@@ -210,7 +209,7 @@ GameObject:
   - component: {fileID: 8133554415137042562}
   - component: {fileID: 6270356398733608008}
   - component: {fileID: 893797516883906900}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: slime
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -419,10 +418,30 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4244718586632128014, guid: 4f92c2aa519098f43a1630dbbfbdf15f,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4766965889084764586, guid: 4f92c2aa519098f43a1630dbbfbdf15f,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5613570608859893099, guid: 4f92c2aa519098f43a1630dbbfbdf15f,
         type: 3}
       propertyPath: m_Name
       value: EHealthBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 5613570608859893099, guid: 4f92c2aa519098f43a1630dbbfbdf15f,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7885251585257282568, guid: 4f92c2aa519098f43a1630dbbfbdf15f,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f92c2aa519098f43a1630dbbfbdf15f, type: 3}

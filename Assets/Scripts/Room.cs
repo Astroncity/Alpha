@@ -71,6 +71,8 @@ public class Room : MonoBehaviour{
                 if(hit.collider.attachedRigidbody.gameObject.tag == "door"){
                     hit.collider.gameObject.GetComponent<Door>().connected = true;
                     hit.collider.gameObject.GetComponent<Door>().windowBlocker.SetActive(false);
+                    //move door to average position between new door and old door
+                    hit.collider.transform.position = (hit.collider.transform.position + doorStart.position) / 2;
                     doorStart.RotateAround(room.transform.position, Vector3.up, 90);
                     continue;
                 }
